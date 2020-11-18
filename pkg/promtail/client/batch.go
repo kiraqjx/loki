@@ -80,6 +80,26 @@ func (b *batch) encode() ([]byte, int, error) {
 	return buf, entriesCount, nil
 }
 
+func (b *batch) jsonEncode() ([]byte, int, error) {
+	return b.createPushJsonRequest()
+}
+
+func (b *batch) createPushJsonRequest() ([]byte, int, error) {
+	req := ""
+	entriesCount := 0
+	for _, stream := range b.streams {
+		for _, entry := range stream.Entries {
+			if entriesCount == 0 {
+				req = req + entry.Line
+			} else {
+				req = req + "|" + entry.Line
+			}
+			entriesCount ++
+		}
+	}
+	return []byte(req), entriesCount, nil;
+}
+
 // creates push request and returns it, together with number of entries
 func (b *batch) createPushRequest() (*logproto.PushRequest, int) {
 	req := logproto.PushRequest{

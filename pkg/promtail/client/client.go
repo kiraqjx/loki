@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	contentType  = "application/x-protobuf"
+	contentType  = "text/plain"
 	maxErrMsgLen = 1024
 
 	// Label reserved to override the tenant ID while processing
@@ -238,7 +238,7 @@ func (c *client) run() {
 }
 
 func (c *client) sendBatch(tenantID string, batch *batch) {
-	buf, entriesCount, err := batch.encode()
+	buf, entriesCount, err := batch.jsonEncode()
 	if err != nil {
 		level.Error(c.logger).Log("msg", "error encoding batch", "error", err)
 		return
