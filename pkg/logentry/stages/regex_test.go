@@ -229,6 +229,10 @@ var (
 	regexLogFixture = `11.11.11.11 - frank [25/Jan/2000:14:00:01 -0500] "GET /1986.js HTTP/1.1" 200 932 "-" "Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.7) Gecko/20091221 Firefox/3.5.7 GTB6"`
 )
 
+var (
+	regexLogSpring = `2020-11-20 09:19:46.017  INFO  13096 --- [ main] c.c.o.m.f.c.u.Logger                     Line:18   : {"namespace":"onefusion","group":"visit","log":{"operationUser":qijiaxiang,"operation":test,"time":2020-11-20 09:19:46}`
+)
+
 func TestRegexParser_Parse(t *testing.T) {
 	t.Parallel()
 	tests := map[string]struct {
@@ -237,6 +241,25 @@ func TestRegexParser_Parse(t *testing.T) {
 		entry           string
 		expectedExtract map[string]interface{}
 	}{
+		"successfully match expression on spring boot": {
+			map[string]interface{}{
+				"expression": "^(?P<day>\\S+)\\s+(?P<time>\\S+)\\s+(?P<level>\\S+)\\s+(?P<pid>\\S+)\\s+(?P<f>\\S+)\\s+(?P<op1>\\S)\\s*(?P<op>\\S+)\\s+(?P<class>\\S+)\\s+(?P<line>\\S+)\\s+:\\s+(?P<log>.*)$",
+			},
+			map[string]interface{}{},
+			regexLogSpring,
+			map[string]interface{}{
+				"day":        "2020-11-20",
+				"time":    "09:19:46.017",
+				"level":      "INFO",
+				"pid": "13096",
+				"f":    "---",
+				"op1": "[",
+				"op":      "main]",
+				"class":  "c.c.o.m.f.c.u.Logger",
+				"line":    "Line:18",
+				"log":      `{"namespace":"onefusion","group":"visit","log":{"operationUser":qijiaxiang,"operation":test,"time":2020-11-20 09:19:46}`,
+			},
+		},
 		"successfully match expression on entry": {
 			map[string]interface{}{
 				"expression": "^(?P<ip>\\S+) (?P<identd>\\S+) (?P<user>\\S+) \\[(?P<timestamp>[\\w:/]+\\s[+\\-]\\d{4})\\] \"(?P<action>\\S+)\\s?(?P<path>\\S+)?\\s?(?P<protocol>\\S+)?\" (?P<status>\\d{3}|-) (?P<size>\\d+|-)\\s?\"?(?P<referer>[^\"]*)\"?\\s?\"?(?P<useragent>[^\"]*)?\"?$",
